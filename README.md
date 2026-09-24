@@ -116,11 +116,6 @@ uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 streamlit run frontend/streamlit_app.py
 ```
 
-Open the app in your browser at:
-
-- Frontend: http://localhost:8501
-- Backend API: http://localhost:8000
-
 ## Notes
 
 - Do not commit `.env` files or secret keys.
@@ -130,3 +125,5 @@ Open the app in your browser at:
 ## License
 
 This project is for educational and portfolio use.
+
+Developed by: Akshay Sose
