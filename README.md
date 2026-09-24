@@ -1,102 +1,132 @@
-# ATS Resume Scorer
+# ResumeIQ
 
-A web app that scores how well a resume matches a job description and returns actionable feedback. Built with FastAPI + Streamlit, using spaCy and Sentence Transformers for NLP and the Groq API for LLM-generated suggestions.
+ResumeIQ is an AI-powered ATS resume analyzer that helps job seekers evaluate how well their resume matches a target job description. It combines resume parsing, NLP-based analysis, semantic match scoring, and actionable recommendations in a simple web app.
 
-## What it does
+## Features
 
-1. Upload a resume (PDF / DOC / DOCX) and paste a job description.
-2. The backend parses the resume, extracts skills and experience, and compares them to the JD using semantic similarity.
-3. You get an ATS score, a breakdown by category (formatting, keywords, content, skill validation, ATS compatibility), and LLM-written suggestions for what to improve.
-4. Past analyses are saved to your account so you can revisit them.
+- Upload a resume in PDF, DOC, or DOCX format
+- Paste a job description and compare it against the resume
+- Generate an ATS compatibility score
+- Detect missing keywords and skills
+- Measure semantic similarity using embeddings
+- Show category-wise feedback such as formatting, keywords, and content quality
+- Save analysis history for logged-in users
+- Export the final result as a PDF report
 
-## Tech stack
+## Tech Stack
 
-- **Frontend:** Streamlit
-- **Backend:** FastAPI (Python)
-- **NLP:** spaCy (`en_core_web_md`), Sentence Transformers (`all-MiniLM-L6-v2`)
-- **LLM:** Groq API (Llama 3)
-- **Auth + Database:** Supabase (email/password and Google OAuth)
-- **PDF report export:** WeasyPrint + Jinja2
+- Frontend: Streamlit
+- Backend: FastAPI
+- NLP: spaCy, Sentence Transformers
+- AI suggestions: Groq API
+- Authentication/DB: Supabase
+- PDF generation: WeasyPrint, Jinja2
 
-## Project structure
+## Project Structure
 
+```text
+ResumeIQ/
+├── backend/
+│   ├── api/
+│   ├── core/
+│   ├── database/
+│   ├── models/
+│   ├── services/
+│   └── utils/
+├── frontend/
+│   ├── assets/
+│   ├── components/
+│   ├── services/
+│   ├── views/
+│   └── streamlit_app.py
+├── jupyter notebooks/
+├── README.md
+├── PROJECT.md
+├── requirements.txt
+├── .gitignore
+└── .env
 ```
-ATS_SCORER/
-├── backend/              FastAPI app, NLP services, API routes
-├── frontend/             Streamlit app, views, components
-├── jupyter notebooks/    Research and dataset prep (not used at runtime)
-├── ml model/             Exported ML artifacts
-├── requirements.txt      Combined backend + frontend dependencies
-└── .env.example          Template for environment variables
-```
+
+## How It Works
+
+1. The user uploads a resume and enters a job description.
+2. The backend parses the uploaded resume into raw text.
+3. NLP models extract key skills, phrases, and content.
+4. The resume and job description are compared using keyword and semantic similarity logic.
+5. The ATS score is calculated using weighted categories such as formatting, keywords, content, skill validation, and ATS compatibility.
+6. Feedback and recommendations are generated.
+7. The result is displayed in the Streamlit UI and can be saved to history or exported as PDF.
 
 ## Setup
 
-### 1. Clone and create a virtual environment
+### 1. Clone the project
 
 ```bash
-git clone <repo-url>
-cd ATS_SCORER
-python -m venv venv
-source venv/bin/activate         # Windows: venv\Scripts\activate
+git clone https://github.com/akshaysose/ResumeIQ.git
+cd ResumeIQ
 ```
 
-### 2. Install dependencies
+### 2. Create a virtual environment
+
+```bash
+python -m venv venv
+```
+
+On Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+On macOS/Linux:
+
+```bash
+source venv/bin/activate
+```
+
+### 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 python -m spacy download en_core_web_md
 ```
 
-WeasyPrint needs system libraries on Linux:
+### 4. Configure environment variables
 
-```bash
-# Fedora
-sudo dnf install -y cairo pango gdk-pixbuf2 libffi
+Create a `.env` file in the project root and add values for:
 
-# Debian / Ubuntu
-sudo apt install -y libcairo2 libpango-1.0-0 libpangoft2-1.0-0 libffi-dev
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_service_role_key
+SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_JWT_SECRET=your_jwt_secret
+GROQ_API_KEY=your_groq_key
+SENTENCE_TRANSFORMER_MODEL=all-MiniLM-L6-v2
 ```
 
-### 3. Configure environment variables
-
-Copy the template and fill in your keys:
-
-```bash
-cp .env.example .env
-```
-
-You need:
-
-- A **Supabase** project — grab `SUPABASE_URL`, `SUPABASE_KEY` (service role), and `SUPABASE_ANON_KEY` from Project Settings → API.
-- A **Groq** API key from [console.groq.com](https://console.groq.com).
-- (Optional) Google OAuth set up in the Supabase dashboard if you want Google sign-in.
-
-The Streamlit frontend also reads Supabase config from `frontend/.streamlit/secrets.toml`. Copy `secrets.toml.example` to `secrets.toml` and fill it in.
-
-### 4. Run the backend
-
-From the project root:
+### 5. Run the backend
 
 ```bash
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The API is now at `http://localhost:8000`.
-
-### 5. Run the frontend
-
-In a new terminal (with the venv activated):
+### 6. Run the frontend
 
 ```bash
 streamlit run frontend/streamlit_app.py
 ```
 
-The app opens at `http://localhost:8501`.
+Open the app in your browser at:
 
-## Notes for students
+- Frontend: http://localhost:8501
+- Backend API: http://localhost:8000
 
-- **Never commit `.env` or `secrets.toml`** — they hold API keys. Both are in `.gitignore`; check before you push.
-- The first run downloads the Sentence Transformer model (~80 MB). It's cached afterwards.
-- If you don't have a Groq key yet, the scoring still works — only the LLM suggestions section will be empty.
-- `jupyter notebooks/` and `ml model/` are for experimentation and aren't required to run the app.
+## Notes
+
+- Do not commit `.env` files or secret keys.
+- The app may download the sentence-transformer model on first run.
+- Groq is optional for basic scoring, but LLM-generated recommendations depend on it.
+
+## License
+
+This project is for educational and portfolio use.
